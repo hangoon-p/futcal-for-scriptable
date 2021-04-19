@@ -4,8 +4,8 @@
 
 // Widget customisation
 const defaultSettings = {
-    teamId: "9768",
-    timeZone: "Europe/London",
+    teamId: "10260",
+    timeZone: "Asia/Seoul",
 
     language: "system",
 
