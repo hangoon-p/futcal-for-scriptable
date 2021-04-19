@@ -22,6 +22,8 @@ const defaultSettings = {
     showLeagueSubtitle: false,
     showCirclePositionHighlight: true,
     showRowPositionHighlight: false,
+    dateFormatWithWeekday : "MM/dd(EEE)",
+    dateFormatWithoutWeekday : "MM/dd",
 
     backgroundColor: {
         light: "#ffffff",
@@ -162,17 +164,8 @@ async function createWidget() {
 
 // Create matches view
 async function addWidgetMatches(globalStack) {
-    const teamMatches = teamData.fixtures;
-    // Find next match (first match not started and not cancelled)
-    const nextMatchIndex = teamMatches.findIndex(obj => obj.notStarted && !obj.status.cancelled);
-    const nextMatch = teamMatches[nextMatchIndex];
-    // Assume previous match is the one before the next
-    let previousMatchIndex = nextMatchIndex - 1;
-    if (nextMatch == undefined) {
-        // If no next match available season is over, previous match is the last of the season, if exists
-        previousMatchIndex = teamMatches.length - 1;
-    }
-    const previousMatch = teamMatches[previousMatchIndex];
+    const nextMatch = teamData.nextMatch;
+    const previousMatch = teamData.fixtures[0];
 
     const matchesStack = globalStack.addStack();
     matchesStack.url = teamMatchesTapUrl;
@@ -238,7 +231,7 @@ async function addWidgetMatch(matchesStack, match, title) {
         matchInfoTeamsStack.centerAlignContent();
         if (userSettings.showMatchesOnlyOpposition) {
             if (userSettings.showMatchesTeamsBadges) {
-                let teamBadgeUrl = match.home.id == teamData.details.id ? encodeURI(`${baseApiUrl}/images/team/${match.away.id}_xsmall`) : encodeURI(`${baseApiUrl}/images/team/${match.home.id}_xsmall`);
+                let teamBadgeUrl = match.home.id == teamData.details.id ? encodeURI(`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}_xsmall.png`) : encodeURI(`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}_xsmall.png`);
                 let teamBadgeOffline = match.home.id == teamData.details.id ? `badge${title}Away.png` : `badge${title}Home.png`;
                 let teamBadgeValue = await getImage(teamBadgeUrl, teamBadgeOffline);
                 let teamBadgeImage = matchInfoTeamsStack.addImage(teamBadgeValue);
@@ -261,7 +254,7 @@ async function addWidgetMatch(matchesStack, match, title) {
                 matchInfoTeamsStack.addSpacer(2);
             }
             if (userSettings.showMatchesTeamsBadges) {
-                let teamBadgeUrl = encodeURI(`${baseApiUrl}/images/team/${match.home.id}_xsmall`);
+                let teamBadgeUrl = encodeURI(`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}_xsmall.png`);
                 let teamBadgeOffline = `badge${title}Home.png`;
                 let teamBadgeValue = await getImage(teamBadgeUrl, teamBadgeOffline);
                 let teamBadgeImage = matchInfoTeamsStack.addImage(teamBadgeValue);
@@ -272,7 +265,7 @@ async function addWidgetMatch(matchesStack, match, title) {
             addFormattedText(matchInfoTeamsStack, teamsSeparatorValue, Font.regularSystemFont(12), null, null, false);
             if (userSettings.showMatchesTeamsBadges) {
                 matchInfoTeamsStack.addSpacer(2);
-                let teamBadgeUrl = encodeURI(`${baseApiUrl}/images/team/${match.away.id}_xsmall`);
+                let teamBadgeUrl = encodeURI(`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}_xsmall.png`);
                 let teamBadgeOffline = `badge${title}Away.png`;
                 let teamBadgeValue = await getImage(teamBadgeUrl, teamBadgeOffline);
                 let teamBadgeImage = matchInfoTeamsStack.addImage(teamBadgeValue);
@@ -296,10 +289,10 @@ async function addWidgetMatch(matchesStack, match, title) {
                 addFormattedText(matchInfoDetailsStack, detailsCancellationValue, Font.regularSystemFont(12), Color.gray(), null, false);
             } else {
                 // If match is in the future show date and time
-                const detailsDateValue = formatDate(new Date(matchDetails.content.matchFacts.infoBox["Match Date"]));
+                const detailsDateValue = formatDate(new Date((matchDetails.content.matchFacts.infoBox["Match Date"]).replaceAll(".", "")));
                 addFormattedText(matchInfoDetailsStack, detailsDateValue, Font.regularSystemFont(12), Color.gray(), null, false);
                 matchInfoDetailsStack.addSpacer(3);
-                const detailsTimeValue = formatTime(new Date(matchDetails.content.matchFacts.infoBox["Match Date"]));
+                const detailsTimeValue = formatTime(new Date((matchDetails.content.matchFacts.infoBox["Match Date"]).replaceAll(".", "")));
                 addFormattedText(matchInfoDetailsStack, detailsTimeValue, Font.regularSystemFont(12), Color.gray(), null, false);
             }
         } else {
@@ -399,7 +392,7 @@ async function addWidgetTable(stack) {
                     addFormattedText(cellDataStack, cellDataValue, Font.semiboldSystemFont(10), null, null, true);
                 }
             } else if (j == 1 && i > 0) {
-                let teamBadgeUrl = encodeURI(`${baseApiUrl}/images/team/${table[i][j]}_xsmall`);
+                let teamBadgeUrl = encodeURI(`https://images.fotmob.com/image_resources/logo/teamlogo/${table[i][j]}_xsmall.png`);
                 let teamBadgeOffline = `badge_${i}.png`;
                 let teamBadgeValue = await getImage(teamBadgeUrl, teamBadgeOffline);
                 let teamBadgeImage = cellDataStack.addImage(teamBadgeValue);
@@ -556,7 +549,7 @@ function formatDate(date) {
         return dictionary.matchDateTomorrow;
     } else {
         const dateFormatter = new DateFormatter();
-        dateFormatter.dateFormat = userSettings.showMatchesDayOfWeek ? "EEE dd/MMM" : "dd/MMM";
+        dateFormatter.dateFormat = userSettings.showMatchesDayOfWeek ? userSettings.dateFormatWithWeekday : userSettings.dateFormatWithoutWeekday;
         // Format will depend on device language
         dateFormatter.locale = (language);
         return dateFormatter.string(date);
@@ -885,7 +878,7 @@ function getDictionary(language) {
             tableHeaderWins: "승",
             tableHeaderDraws: "무",
             tableHeaderLosses: "패",
-            tableHeaderPoints: "점",
+            tableHeaderPoints: "승점",
             noDataAvailable: "정보 없음",
             noInternetConnection: "인터넷 연결 필요"
         }
