@@ -17,7 +17,7 @@ const defaultSettings = {
     showMatchesOnlyOpposition: false,
     showHomeOrAway: false,
     matchesTwelveHourClock: false,
-    showMatchesDayOfWeek: false,
+    showMatchesDayOfWeek: true,
     showMatchesLiveTime: false,
     showLeagueSubtitle: false,
     showCirclePositionHighlight: true,
