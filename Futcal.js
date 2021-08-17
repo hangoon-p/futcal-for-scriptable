@@ -93,7 +93,7 @@ const teamData = await getData(teamDataApiUrl, "teamData.json");
 const teamTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/overview`);
 const teamMatchesTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/fixtures`);
 let leagueTableTapUrl;
-if (teamData) {
+if (teamData && teamData.tableData) {
     const leagueOverviewUrl = encodeURI(`${baseApiUrl}${teamData.tableData.tables[0].pageUrl}`);
     leagueTableTapUrl = leagueOverviewUrl.replace("overview", "table");
 }
@@ -216,12 +216,11 @@ async function addWidgetMatch(matchesStack, match, title) {
         matchInfoStack.layoutVertically();
         const matchInfoCompetitionStack = matchInfoStack.addStack();
         matchInfoCompetitionStack.centerAlignContent();
-        const competitionValue = shortenLeagueRound(matchDetails.content.matchFacts.infoBox.Tournament.text);
-        const competitionNameValue = competitionValue[0];
+        const competitionNameValue = replaceText(matchDetails.content.matchFacts.infoBox.Tournament.leagueName);
         addFormattedText(matchInfoCompetitionStack, competitionNameValue, Font.semiboldSystemFont(13), null, 1, false);
-        if (userSettings.showMatchesRound && competitionValue[1]) {
+        if (userSettings.showMatchesRound && matchDetails.content.matchFacts.infoBox.Tournament.round) {
             matchInfoCompetitionStack.addSpacer(2);
-            const competitionRoundValue = `(${competitionValue[1]})`;
+            const competitionRoundValue = `(${shortenRoundName(matchDetails.content.matchFacts.infoBox.Tournament.round)})`;
             addFormattedText(matchInfoCompetitionStack, competitionRoundValue, Font.semiboldSystemFont(13), null, 1, false);
         }
         matchInfoStack.addSpacer(1);
@@ -289,10 +288,10 @@ async function addWidgetMatch(matchesStack, match, title) {
                 addFormattedText(matchInfoDetailsStack, detailsCancellationValue, Font.regularSystemFont(12), Color.gray(), null, false);
             } else {
                 // If match is in the future show date and time
-                const detailsDateValue = formatDate(new Date((matchDetails.content.matchFacts.infoBox["Match Date"]).replaceAll(".", "")));
+                const detailsDateValue = formatDate(new Date((matchDetails.content.matchFacts.infoBox["Match Date"].dateFormatted).replaceAll(".", "")));
                 addFormattedText(matchInfoDetailsStack, detailsDateValue, Font.regularSystemFont(12), Color.gray(), null, false);
                 matchInfoDetailsStack.addSpacer(3);
-                const detailsTimeValue = formatTime(new Date((matchDetails.content.matchFacts.infoBox["Match Date"]).replaceAll(".", "")));
+                const detailsTimeValue = formatTime(new Date((`${matchDetails.content.matchFacts.infoBox["Match Date"].dateFormatted} ${matchDetails.content.matchFacts.infoBox["Match Date"].timeFormatted}`).replaceAll(".", "")));
                 addFormattedText(matchInfoDetailsStack, detailsTimeValue, Font.regularSystemFont(12), Color.gray(), null, false);
             }
         } else {
@@ -325,6 +324,9 @@ async function addWidgetMatch(matchesStack, match, title) {
 }
 
 async function addWidgetTable(stack) {
+  const leagueStack = stack.addStack();
+  leagueStack.layoutVertically();
+  if(teamData.tableData) {
     let leagueTable = teamData.tableData.tables[0].table;
     let leagueTitle = teamData.tableData.tables[0].leagueName;
     let leagueSubtitle;
@@ -350,8 +352,6 @@ async function addWidgetTable(stack) {
         teamLeaguePosition = teamOnLeague.idx;
     }
 
-    const leagueStack = stack.addStack();
-    leagueStack.layoutVertically();
     leagueStack.url = leagueTableTapUrl;
     leagueStack.addSpacer(2.5);
     const leagueTitleStack = leagueStack.addStack();
@@ -403,6 +403,15 @@ async function addWidgetTable(stack) {
             }
         }
     }
+  } else {
+      leagueStack.addSpacer();
+      const noDataStack = leagueStack.addStack();
+      noDataStack.addSpacer();
+      const noMatchesValue = dictionary.noDataAvailable;
+      addFormattedText(noDataStack, noMatchesValue, Font.regularSystemFont(12), null, 1, false);
+      noDataStack.addSpacer();
+      leagueStack.addSpacer();
+  }
 }
 
 // Build the league table (Position, Team, Matches Played, Wins, Draws, Losses, Points)
@@ -597,14 +606,7 @@ function setWidgetBackground(widget) {
 }
 
 // Prepare league and round name to fit in widget
-function shortenLeagueRound(leagueRoundName) {
-    // Clean extra spaces found on FotMob API responses
-    leagueRoundName = leagueRoundName.replace(/ +(?= )/g, '');
-    // Split League and Round information
-    const leagueName = leagueRoundName.split(" - ")[0];
-    let roundName = leagueRoundName.split(" - ")[1];
-    if (roundName) {
-        // Clean up round name
+function shortenRoundName(roundName) {
         if (roundName.includes("Round")) {
             if (roundName.includes("of")) {
                 // Replace "Round of X" with "1/X"
@@ -614,10 +616,7 @@ function shortenLeagueRound(leagueRoundName) {
                 roundName = `${dictionary.matchRound}${roundName.split("Round ")[1]}`;
             }
         }
-        return [replaceText(leagueName), replaceText(roundName)];
-    } else {
-        return [replaceText(leagueName), false];
-    }
+        return replaceText(roundName);
 }
 
 // Shorten and / or translate specific information
