@@ -1,5 +1,8 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
+// icon-color: blue; icon-glyph: magic;
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: futbol;
 
 // Widget customisation
@@ -165,7 +168,14 @@ async function createWidget() {
 // Create matches view
 async function addWidgetMatches(globalStack) {
     const nextMatch = teamData.nextMatch;
-    const previousMatch = teamData.fixtures[0];
+	 
+	for (let i = 0; i < teamData.fixtures.length; i++) {
+		if (teamData.fixtures[i].id === nextMatch.id) {
+			var pre_match_id = i - 1;
+			break;
+		}
+	}
+    const previousMatch = teamData.fixtures[pre_match_id];
 
     const matchesStack = globalStack.addStack();
     matchesStack.url = teamMatchesTapUrl;
