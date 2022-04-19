@@ -1,3 +1,17 @@
+It is a forked script of @thejosejorge 's origina
+I added a few tiny modification for personal use.
+
+* Add a option to set date format
+* Improve Korean translation
+
+Rest of them, it is all same with original.
+
+Below is Jose's desciption and instruction for this script.
+
+
+
+
+
 ![img_banner](https://user-images.githubusercontent.com/76433052/104852433-ed35fb80-58f2-11eb-8a49-256395f18bae.png)
 
 # Futcal for Scriptable
