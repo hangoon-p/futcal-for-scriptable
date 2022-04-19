@@ -83,7 +83,7 @@ const dictionary = getDictionary(language)[1];
 
 // Define FotMob API URLs
 const baseApiUrl = encodeURI("https://www.fotmob.com");
-const teamDataApiUrl = encodeURI(`${baseApiUrl}/teams?id=${userSettings.teamId}&tab=overview&type=team&timeZone=${userSettings.timeZone}`);
+const teamDataApiUrl = encodeURI(`${baseApiUrl}/api/teams?id=${userSettings.teamId}&tab=overview&type=team&timeZone=${userSettings.timeZone}`);
 const matchDetailsApiUrl = encodeURI(`${baseApiUrl}/matchDetails?matchId=`);
 
 // Get team data
@@ -94,7 +94,7 @@ const teamTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/overvie
 const teamMatchesTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/fixtures`);
 let leagueTableTapUrl;
 if (teamData && teamData.tableData) {
-    const leagueOverviewUrl = encodeURI(`${baseApiUrl}${teamData.tableData.tables[0].pageUrl}`);
+    const leagueOverviewUrl = encodeURI(`${baseApiUrl}${teamData.tableData[0].pageUrl}`);
     leagueTableTapUrl = leagueOverviewUrl.replace("overview", "table");
 }
 
@@ -165,14 +165,15 @@ async function createWidget() {
 // Create matches view
 async function addWidgetMatches(globalStack) {
     const nextMatch = teamData.nextMatch;
-	 
-    for (let i = 0; i < teamData.fixtures.length; i++) {
-	if (teamData.fixtures[i].id === nextMatch.id) {
-            var pre_match_id = i - 1;
+
+    let previousMatchIndex = 0;
+    for (let i = 0; i < teamData.fixtures.length; i += 1) {
+        if (teamData.fixtures[i].id === nextMatch.id) {
+            previousMatchIndex = i - 1;
             break;
         }
     }
-    const previousMatch = teamData.fixtures[pre_match_id];
+    const previousMatch = teamData.fixtures[previousMatchIndex];
 
     const matchesStack = globalStack.addStack();
     matchesStack.url = teamMatchesTapUrl;
@@ -334,22 +335,26 @@ async function addWidgetTable(stack) {
   const leagueStack = stack.addStack();
   leagueStack.layoutVertically();
   if(teamData.tableData) {
-    let leagueTable = teamData.tableData.tables[0].table;
-    let leagueTitle = teamData.tableData.tables[0].leagueName;
+    let isSingleTable = teamData.tableData[0].table;
+    let leagueTable;
+    let leagueTitle = teamData.tableData[0].leagueName;
     let leagueSubtitle;
     // If league table is not found assume it is a special case with more than one table available
-    if (!leagueTable) {
+    if (isSingleTable) {
+      leagueTable = teamData.tableData[0].table.all;
+    }
+    else {
         let teamFound;
         let tableIndex = 0;
-        for (let i = 0; i < teamData.tableData.tables[0].tables.length; i += 1) {
-            teamFound = (teamData.tableData.tables[0].tables[i].table).findIndex(obj => obj.id == teamData.details.id);
+        for (let i = 0; i < teamData.tableData[0].tables.length; i += 1) {
+            teamFound = (teamData.tableData[0].tables[i].table.all).findIndex(obj => obj.id == teamData.details.id);
             if (teamFound != -1) {
                 tableIndex = i;
                 break;
             }
         }
-        leagueTable = teamData.tableData.tables[0].tables[tableIndex].table;
-        leagueSubtitle = teamData.tableData.tables[0].tables[tableIndex].leagueName;
+        leagueTable = teamData.tableData[0].tables[tableIndex].table.all;
+        leagueSubtitle = teamData.tableData[0].tables[tableIndex].leagueName;
         leagueSubtitle = leagueSubtitle.startsWith("- ") ? leagueSubtitle.substring(2) : leagueSubtitle;
     }
     // Get team position in league
@@ -870,7 +875,7 @@ function getDictionary(language) {
             quarterFinal: "8강",
             semiFinal: "4강",
             final: "결승",
-            matchTitleNext: "다음",
+            matchTitleNext: "다음 경기",
             matchRound: "R",
             home: "홈",
             away: "원",
