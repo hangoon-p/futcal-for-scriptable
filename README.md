@@ -1,7 +1,7 @@
 It is a forked script of @thejosejorge 's origina
 I added a few tiny modification for personal use.
 
-* Add a option to set date format
+* Add an option to set date format
 * Improve Korean translation
 
 Rest of them, it is all same with original.
