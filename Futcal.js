@@ -2,28 +2,37 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: futbol;
 
+
+// Create folder to store data
+let fm = FileManager.local();
+const iCloudUsed = fm.isFileStoredIniCloud(module.filename);
+fm = iCloudUsed ? FileManager.iCloud() : fm;
+const widgetFolder = "Futcal";
+const offlinePath = fm.joinPath(fm.documentsDirectory(), widgetFolder);
+if (!fm.fileExists(offlinePath)) fm.createDirectory(offlinePath);
+
 // Widget customisation
+let userParameter;
+userParameter = JSON.parse(fm.readString(fm.joinPath(offlinePath, "userParameter.json")));
+
 const defaultSettings = {
-    teamId: "10260",
-    timeZone: "Asia/Seoul",
-
-    language: "system",
-
+    teamId: userParameter.teamId,
+    timeZone: userParameter.timeZone,
+    language: userParameter.language,
     smallWidgetView: args.widgetParameter ? args.widgetParameter : "table",
-
-    showMatchesRound: false,
-    showMatchesTeamsNames: true,
-    showMatchesTeamsBadges: false,
-    showMatchesOnlyOpposition: false,
-    showHomeOrAway: false,
-    matchesTwelveHourClock: false,
-    showMatchesDayOfWeek: true,
-    showMatchesLiveTime: false,
-    showLeagueSubtitle: false,
-    showCirclePositionHighlight: true,
-    showRowPositionHighlight: false,
-    dateFormatWithWeekday : "MM/dd(EEE)",
-    dateFormatWithoutWeekday : "MM/dd",
+    showMatchesRound: userParameter.showMatchesRound,
+    showMatchesTeamsNames: userParameter.showMatchesTeamsNames,
+    showMatchesTeamsBadges: userParameter.showMatchesTeamsBadges,
+    showMatchesOnlyOpposition: userParameter.showMatchesOnlyOpposition,
+    showHomeOrAway: userParameter.showHomeOrAway,
+    matchesTwelveHourClock: userParameter.matchesTwelveHourClock,
+    showMatchesDayOfWeek: userParameter.showMatchesDayOfWeek,
+    showMatchesLiveTime: userParameter.showMatchesLiveTime,
+    showLeagueSubtitle: userParameter.showLeagueSubtitle,
+    showCirclePositionHighlight: userParameter.showCirclePositionHighlight,
+    showRowPositionHighlight: userParameter.showRowPositionHighlight,
+    dateFormatWithWeekday : userParameter.dateFormatWithWeekday,
+    dateFormatWithoutWeekday : userParameter.dateFormatWithoutWeekday,
 
     backgroundColor: {
         light: "#ffffff",
@@ -46,14 +55,6 @@ const defaultSettings = {
         dark: "#ff453a"
     }
 };
-
-// Create folder to store data
-let fm = FileManager.local();
-const iCloudUsed = fm.isFileStoredIniCloud(module.filename);
-fm = iCloudUsed ? FileManager.iCloud() : fm;
-const widgetFolder = "Futcal";
-const offlinePath = fm.joinPath(fm.documentsDirectory(), widgetFolder);
-if (!fm.fileExists(offlinePath)) fm.createDirectory(offlinePath);
 
 // Get user settings
 let userSettings;
