@@ -356,8 +356,8 @@ async function addWidgetTable(stack) {
                 break;
             }
         }
-        leagueTable = teamData.table[0].data.table.all;
-        leagueSubtitle = teamData.table[0].data.leagueName;
+        leagueTable = teamData.table[tableIndex].data.table.all;
+        leagueSubtitle = teamData.table[tableIndex].data.leagueName;
         leagueSubtitle = leagueSubtitle.startsWith("- ") ? leagueSubtitle.substring(2) : leagueSubtitle;
     }
     // Get team position in league
