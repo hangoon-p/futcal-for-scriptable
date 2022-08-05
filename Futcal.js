@@ -95,7 +95,7 @@ const teamTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/overvie
 const teamMatchesTapUrl = encodeURI(`${baseApiUrl}/teams/${userSettings.teamId}/fixtures`);
 let leagueTableTapUrl;
 if (teamData && teamData.table) {
-    const leagueOverviewUrl = encodeURI(`${baseApiUrl}${teamData.table[0].pageUrl}`);
+    const leagueOverviewUrl = encodeURI(`${baseApiUrl}${teamData.table[0].data.pageUrl}`);
     leagueTableTapUrl = leagueOverviewUrl.replace("overview", "table");
 }
 
@@ -338,26 +338,26 @@ async function addWidgetTable(stack) {
   const leagueStack = stack.addStack();
   leagueStack.layoutVertically();
   if(teamData.table) {
-    let isSingleTable = teamData.table[0].table;
+    let isSingleTable = teamData.table.length;
     let leagueTable;
-    let leagueTitle = teamData.table[0].leagueName;
+    let leagueTitle = teamData.table[0].data.leagueName;
     let leagueSubtitle;
     // If league table is not found assume it is a special case with more than one table available
-    if (isSingleTable) {
-      leagueTable = teamData.table[0].table.all;
+    if (isSingleTable == 1) {
+      leagueTable = teamData.table[0].data.table.all;
     }
     else {
         let teamFound;
-        let tableIndex = 0;
-        for (let i = 0; i < teamData.table[0].tables.length; i += 1) {
-            teamFound = (teamData.table[0].tables[i].table.all).findIndex(obj => obj.id == teamData.details.id);
+        let tableIndex = 0;		
+        for (let i = 0; i < teamData.table.length; i += 1) {
+            teamFound = (teamData.table[i].data.table.all).findIndex(obj => obj.id == teamData.details.id);
             if (teamFound != -1) {
                 tableIndex = i;
                 break;
             }
         }
-        leagueTable = teamData.table[0].tables[tableIndex].table.all;
-        leagueSubtitle = teamData.table[0].tables[tableIndex].leagueName;
+        leagueTable = teamData.table[0].data.table.all;
+        leagueSubtitle = teamData.table[0].data.leagueName;
         leagueSubtitle = leagueSubtitle.startsWith("- ") ? leagueSubtitle.substring(2) : leagueSubtitle;
     }
     // Get team position in league
