@@ -165,18 +165,18 @@ async function createWidget() {
 
 // Create matches view
 async function addWidgetMatches(globalStack) {
-    const nextMatch = teamData.nextMatch;
+    const nextMatch = teamData.fixtures.allFixtures.nextMatch;
 
-    let previousMatchIndex = teamData.fixtures.length - 1;
+    let previousMatchIndex = teamData.fixtures.allFixtures.fixtures.length - 1;
     if (nextMatch) {
-      for (let i = 0; i < teamData.fixtures.length; i += 1) {
-          if (teamData.fixtures[i].id === nextMatch.id) {
+      for (let i = 0; i < teamData.fixtures.allFixtures.fixtures.length; i += 1) {
+          if (teamData.fixtures.allFixtures.fixtures[i].id === nextMatch.id) {
               previousMatchIndex = i - 1;
               break;
           }
       }
     }
-    const previousMatch = teamData.fixtures[previousMatchIndex];
+    const previousMatch = teamData.fixtures.allFixtures.fixtures[previousMatchIndex];
 
     const matchesStack = globalStack.addStack();
     matchesStack.url = teamMatchesTapUrl;
