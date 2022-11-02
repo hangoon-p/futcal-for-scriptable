@@ -84,7 +84,7 @@ const dictionary = getDictionary(language)[1];
 
 // Define FotMob API URLs
 const baseApiUrl = encodeURI("https://www.fotmob.com");
-const teamDataApiUrl = encodeURI(`${baseApiUrl}/api/teams?id=${userSettings.teamId}&tab=overview&type=team&timeZone=${userSettings.timeZone}`);
+const teamDataApiUrl = encodeURI(`${baseApiUrl}/api/teams?id=${userSettings.teamId}&tab=overview&type=team&timezone=${userSettings.timeZone}`);
 const matchDetailsApiUrl = encodeURI(`${baseApiUrl}/api/matchDetails?matchId=`);
 
 // Get team data
@@ -202,7 +202,7 @@ async function addWidgetMatch(matchesStack, match, title) {
     if (match != undefined) {
         const matchTapUrl = encodeURI(`${baseApiUrl}${match.pageUrl}`);
         matchStack.url = matchTapUrl;
-        const matchDetailsUrl = `${matchDetailsApiUrl}${match.id}`;
+        const matchDetailsUrl = `${matchDetailsApiUrl}${match.id}&timezone=${userSettings.timeZone}`;
         const matchDetailsOffline = `match${title}.json`;
         const matchDetails = await getData(matchDetailsUrl, matchDetailsOffline);
 
