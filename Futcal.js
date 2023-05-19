@@ -299,10 +299,10 @@ async function addWidgetMatch(matchesStack, match, title) {
                 addFormattedText(matchInfoDetailsStack, detailsCancellationValue, Font.regularSystemFont(12), Color.gray(), null, false);
             } else {
                 // If match is in the future show date and time
-                const detailsDateValue = formatDate(new Date((matchDetails.content.matchFacts.infoBox["Match Date"].dateFormatted).replaceAll(".", "")));
+                const detailsDateValue = formatDate(new Date((matchDetails.content.matchFacts.infoBox["Match Date"].utcTime)));
                 addFormattedText(matchInfoDetailsStack, detailsDateValue, Font.regularSystemFont(12), Color.gray(), null, false);
                 matchInfoDetailsStack.addSpacer(3);
-                const detailsTimeValue = formatTime(new Date((`${matchDetails.content.matchFacts.infoBox["Match Date"].dateFormatted} ${matchDetails.content.matchFacts.infoBox["Match Date"].timeFormatted}`).replaceAll(".", "")));
+                const detailsTimeValue = formatTime(new Date((`${matchDetails.content.matchFacts.infoBox["Match Date"].utcTime}`)));
                 addFormattedText(matchInfoDetailsStack, detailsTimeValue, Font.regularSystemFont(12), Color.gray(), null, false);
             }
         } else {
@@ -338,26 +338,26 @@ async function addWidgetTable(stack) {
   const leagueStack = stack.addStack();
   leagueStack.layoutVertically();
   if(teamData.table) {
-    let isSingleTable = teamData.table.length;
+    let isSingleTable = teamData.table[0].data.composite;
     let leagueTable;
     let leagueTitle = teamData.table[0].data.leagueName;
     let leagueSubtitle;
     // If league table is not found assume it is a special case with more than one table available
-    if (isSingleTable == 1) {
-      leagueTable = teamData.table[0].data.table.all;
+    if (isSingleTable == false) {
+      leagueTable = teamData.table[0].data.table.all;      
     }
     else {
         let teamFound;
         let tableIndex = 0;		
-        for (let i = 0; i < teamData.table.length; i += 1) {
-            teamFound = (teamData.table[i].data.table.all).findIndex(obj => obj.id == teamData.details.id);
+        for (let i = 0; i < teamData.table[0].data.tables.length; i += 1) {
+            teamFound = (teamData.table[0].data.tables[i].table.all).findIndex(obj => obj.id == teamData.details.id);
             if (teamFound != -1) {
                 tableIndex = i;
                 break;
             }
-        }
-        leagueTable = teamData.table[tableIndex].data.table.all;
-        leagueSubtitle = teamData.table[tableIndex].data.leagueName;
+        }		
+        leagueTable = teamData.table[0].data.tables[tableIndex].table.all;
+        leagueSubtitle = teamData.table[0].data.tables[tableIndex].leagueName;
         leagueSubtitle = leagueSubtitle.startsWith("- ") ? leagueSubtitle.substring(2) : leagueSubtitle;
     }
     // Get team position in league
